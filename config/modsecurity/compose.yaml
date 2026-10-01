@@ -1,0 +1,76 @@
+name: waf-hardening-lab
+services:
+  waf:
+    image: ${WAF_IMAGE:?Set WAF_IMAGE}
+    container_name: waflab-modsecurity
+    restart: unless-stopped
+    ports:
+      - "${LAB_IP:?Set LAB_IP}:80:8080"
+      - "${LAB_IP}:443:8443"
+    environment:
+      SERVER_NAME: ${LAB_DOMAIN:-dvwa.local}
+      BACKEND: http://172.30.50.1:8080
+      PORT: "8080"
+      SSL_PORT: "8443"
+      NGINX_ALWAYS_TLS_REDIRECT: "off"
+      PROXY_HOST_HEADER: ${LAB_DOMAIN:-dvwa.local}
+      SSL_CERT_FILE: /etc/nginx/waflab-tls/server.crt
+      SSL_CERT_KEY_FILE: /etc/nginx/waflab-tls/server.key
+      SSL_PROTOCOLS: "TLSv1.2 TLSv1.3"
+      SSL_OCSP_STAPLING: "off"
+      SERVER_TOKENS: "off"
+      MODSEC_RULE_ENGINE: "On"
+      MODSEC_REQ_BODY_ACCESS: "On"
+      MODSEC_RESP_BODY_ACCESS: "On"
+      BLOCKING_PARANOIA: "1"
+      DETECTION_PARANOIA: "1"
+      ANOMALY_INBOUND: "5"
+      ANOMALY_OUTBOUND: "4"
+      MODSEC_AUDIT_ENGINE: RelevantOnly
+      MODSEC_AUDIT_LOG_FORMAT: JSON
+      MODSEC_AUDIT_LOG_TYPE: Serial
+      MODSEC_AUDIT_LOG: /dev/stdout
+      ACCESSLOG: /dev/stdout
+      ERRORLOG: /var/log/waf-host/error.log
+      TZ: Etc/UTC
+      # No upstream proxy in this lab. Never trust arbitrary LAN X-Forwarded-For.
+      SET_REAL_IP_FROM: "127.0.0.1"
+      REAL_IP_RECURSIVE: "off"
+    volumes:
+      - ./rules/custom.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:ro
+      - ./nginx/rate-limit.conf:/etc/nginx/conf.d/00-waflab-rate-limit.conf:ro
+      - ./tls:/etc/nginx/waflab-tls:ro
+      - ./logs:/var/log/waf-host:rw
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    networks:
+      backend:
+        ipv4_address: 172.30.50.2
+
+  fail2ban:
+    image: ${F2B_IMAGE:?Set F2B_IMAGE}
+    container_name: waflab-fail2ban
+    restart: unless-stopped
+    network_mode: host
+    cap_add: [NET_ADMIN, NET_RAW]
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Etc/UTC
+    volumes:
+      - ./fail2ban:/config
+      - ./logs:/remotelogs/modsecurity:ro
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  backend:
+    external: true
+    name: waflab-backend

@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+runtime/
+backups/
+downloads/
+reports/raw/
+*.key
+*.pem
+*.pcap
+*.har
+*.sqlite3
+*.log
+!tests/fixtures/*.log
+__pycache__/
+.venv/
+.DS_Store

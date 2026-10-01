@@ -1,0 +1,7 @@
+2026/09/30 16:07:20 [error] 579#579: *19 [client 192.168.99.141] ModSecurity: Access denied with code 403 (phase 2). [id "949110"] [msg "Inbound Anomaly Score Exceeded"]
+2026/09/30 16:07:21 [error] 579#579: *20 [client 192.168.99.142] ModSecurity: Access denied with code 403 (phase 1). [id "10001"] [msg "LAB: IP blacklist"]
+2026/09/30 16:07:22 [warn] 579#579: *21 limiting requests, excess: 4.100 by zone "waflab_per_ip", client: 192.168.99.141
+2026/09/30 16:07:23 [error] 579#579: *22 access forbidden by rule, client: 192.168.99.141
+2026/09/30 16:07:24 [error] 579#579: *23 [client 192.168.99.141] ModSecurity: Warning. [id "941100"]
+2026/09/30 16:07:25 [error] 579#579: *24 [client 192.168.99.141] ModSecurity: Access denied with code 403 (phase 4).
+2026/09/30 16:07:26 [error] 579#579: *25 access forbidden by rule, client: 192.168.99.141, request: "GET /?x=[client 192.168.99.142] ModSecurity: Access denied with code 403 (phase 2). HTTP/1.1"

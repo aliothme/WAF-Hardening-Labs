@@ -1,0 +1,12 @@
+# An explicit IPv4-only action scoped to this repository's WAF container.
+# Equivalent purpose to iptables-multiport, with an additional destination match.
+[Definition]
+actionstart = iptables -w -N f2b-waflab
+              iptables -w -A f2b-waflab -j RETURN
+              iptables -w -I DOCKER-USER 1 -d 172.30.50.2 -p tcp -m multiport --dports 8080,8443 -j f2b-waflab
+actioncheck = iptables -w -C DOCKER-USER -d 172.30.50.2 -p tcp -m multiport --dports 8080,8443 -j f2b-waflab
+actionban = iptables -w -I f2b-waflab 1 -s <ip> -j DROP
+actionunban = iptables -w -D f2b-waflab -s <ip> -j DROP
+actionstop = iptables -w -D DOCKER-USER -d 172.30.50.2 -p tcp -m multiport --dports 8080,8443 -j f2b-waflab
+             iptables -w -F f2b-waflab
+             iptables -w -X f2b-waflab

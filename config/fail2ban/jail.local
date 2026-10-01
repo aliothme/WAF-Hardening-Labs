@@ -1,0 +1,17 @@
+[DEFAULT]
+backend = polling
+usedns = no
+logtimezone = UTC
+ignoreip = 127.0.0.1/8 ::1
+# Do NOT ignore 192.168.0.0/16: that would exempt the Kali machine.
+bantime.increment = false
+
+[modsecurity-dvwa]
+enabled = true
+filter = modsecurity-dvwa
+logpath = /remotelogs/modsecurity/error.log
+findtime = 10
+maxretry = 10
+bantime = 1800
+# Destination and ports are those AFTER Docker DNAT. This matches only our WAF.
+action = waflab-web

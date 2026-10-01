@@ -1,0 +1,17 @@
+name: Static validation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install validation dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-yaml shellcheck
+      - name: Syntax and configuration checks
+        run: python3 tests/validate.py
+      - name: Helper and rollback tests
+        run: python3 -m unittest discover -s tests -v
+      - name: ShellCheck
+        run: shellcheck -x -P SCRIPTDIR scripts/*.sh

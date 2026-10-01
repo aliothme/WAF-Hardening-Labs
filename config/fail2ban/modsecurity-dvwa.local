@@ -1,0 +1,6 @@
+[Definition]
+# Date is removed before failregex matching. Match the trusted log prefix,
+# not attacker-controlled request headers or a fabricated client: suffix.
+failregex = ^\s*\[error\] \d+#\d+: \*\d+ \[client <HOST>\] ModSecurity: Access denied with code 403 \(phase [12]\)\.
+ignoreregex =
+datepattern = ^%%Y/%%m/%%d %%H:%%M:%%S
